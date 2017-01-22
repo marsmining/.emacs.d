@@ -1,0 +1,48 @@
+;;
+;; init.el - configure emacs
+;;
+
+(setq debug-on-error nil)
+(setq exec-path-from-shell-check-startup-files nil)
+
+;; setup package manager
+;;
+
+(require 'package)
+
+;; (add-to-list 'package-archives
+;;              '("melpa" . "https://melpa.org/packages/"))
+
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
+(message "pre..")
+(package-initialize)
+(message "post..")
+
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+(defvar my-packages
+  '(smex exec-path-from-shell use-package
+         magit paredit auto-complete graphviz-dot-mode
+         rainbow-delimiters buffer-move xscheme
+         sml-mode shm hindent
+         monokai-theme zenburn-theme twilight-anti-bright-theme
+         diminish flycheck js2-mode rainbow-mode
+         web-mode less-css-mode markdown-mode
+         clojure-mode clojure-mode-extra-font-locking
+         cider ac-cider slamhound spaceline popup-imenu
+         intero)
+  "A list of packages to ensure are installed at launch.")
+
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
+
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+
+(set-frame-size nil 240 80)
+(setq ns-auto-hide-menu-bar t)
+(set-frame-position nil 0 -24)
