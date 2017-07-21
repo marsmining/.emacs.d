@@ -39,9 +39,6 @@
 (fset 'kill-yank
       [?\C-k ?\C-y])
 
-(fset 'logv
-   (lambda (&optional arg) "Keyboard macro." (interactive "p") (kmacro-exec-ring-item (quote ([8388701 134217788 8388708 134217848 108 111 103 return 24 67108909 134217790 134217848 114 101 return 8388699 134217848 107 109] 0 "%d")) arg)))
-
 (define-key global-map (kbd "M-s-s")
   (lambda () (interactive) (insert "ß")))
 (define-key global-map (kbd "M-s-u")
@@ -65,12 +62,17 @@
 (define-key global-map (kbd "s-4") 'imenu)
 (define-key global-map (kbd "s--") 'kill-yank)
 (define-key global-map (kbd "s-d") 'kill-whole-line)
-(define-key global-map (kbd "M-s-<f6>") 'logv)
 (define-key global-map [s-up] 'delete-other-windows)
 (define-key global-map [s-down] 'delete-window)
 (define-key global-map [f6] 'mark-sexp)
 (define-key global-map (kbd "M-s-˚") 'highlight-symbol-at-point)
 (define-key global-map (kbd "M-s-¬") 'unhighlight-regexp)
+
+;; paredit bindings
+;;
+
+(define-key global-map (kbd "M-[") 'paredit-wrap-square)
+(define-key global-map (kbd "M-{") 'paredit-wrap-curly)
 
 ;; global bindings for a few commonly opened files
 ;;
@@ -231,11 +233,17 @@
          (proj-plist (cdr proj))
          (rel (file-relative-name buffer-file-name
                                   (plist-get proj-plist :base-directory)))
-         (dest (plist-get proj-plist :publishing-directory)))
+         (dest (plist-get proj-plist :publishing-directory))
+         (proj-img (replace-regexp-in-string "-org" "-img" (car proj))))
+    (message "foo: %s -> %s" (car proj) proj-img)
+    (org-publish-project proj-img)
+    ;; (org-publish-attachment proj-plist buffer-file-name dest)
     (browse-url (concat "file://"
                         (file-name-as-directory (expand-file-name dest))
                         (file-name-sans-extension rel)
                         ".html"))))
+
+;; (expand-file-name (file-name-nondirectory "test.org") "~/Dropbox/pub/org")
 
 (defun my-org-publish-project ()
   (interactive)
@@ -266,14 +274,17 @@
     border-radius: 0;
   }
 </style>"
-         :base-directory (concat "~/lang/org/" path)
+         :base-directory (concat "~/lang/org/" path "/")
          :publishing-directory (concat "~/Dropbox/pub/" path))
    (list (concat path "-img")
          :base-directory (concat "~/lang/org/" path "/img")
          :base-extension "png"
+         :recursive t
          :publishing-function 'org-publish-attachment
          :publishing-directory (concat "~/Dropbox/pub/" path "/img"))
-   (list path :components (list (concat path "-org") (concat path "-img")))))
+   ))
+
+;; (list path :components (list (concat path "-org") (concat path "-img")))
 
 (setq my-org-dirs '("prog" "grow" "jobs" "zalando" "webtrekk"))
 
@@ -498,12 +509,31 @@
 ;;   (clojure-jump-between-tests-and-code)
 ;;   (clojure-test-run-tests))
 
-(fset 'show-repl
-      "\C-c\C-z\C-xo")
+;; buffer stuff
+;; (message "msg: %s" (clojure-project-dir (cider-current-dir)))
 
-(defun show-nrepl ()
+(defun my-find-nrepl ()
   (interactive)
-  (display-buffer "*nrepl-server oberyn*"))
+  (let ((messages-buffer-name (buffer-name (cider-current-messages-buffer))))
+    (replace-regexp-in-string "messages" "server" messages-buffer-name)))
+
+(defun my-switch-to-nrepl ()
+  (interactive)
+  (display-buffer (my-find-nrepl)))
+
+(defun my-switch-to-repl ()
+  (interactive)
+  (display-buffer (cider-current-repl-buffer)))
+
+(defun my-clj-logv ()
+  (interactive)
+  (with-current-buffer (my-find-nrepl)
+    (logview-mode)
+    (text-scale-decrease 2)
+    (read-only-mode -1)))
+
+;; buffer stuff end
+;;
 
 (defun my-clojure-debug ()
   (interactive)
@@ -525,8 +555,9 @@
             (local-set-key (kbd "s-.") 'cider-eval-defun-at-point)
             (local-set-key (kbd "s-/") 'cider-eval-last-sexp)
             (local-set-key (kbd "M-s-÷") 'cider-pprint-eval-last-sexp)
-            (local-set-key [f5] 'show-repl)
-            (local-set-key [M-f5] 'show-nrepl)
+            (local-set-key [f5] 'my-switch-to-repl)
+            (local-set-key [M-f5] 'my-switch-to-nrepl)
+            (local-set-key (kbd "M-s-<f6>") 'my-clj-logv)
             (local-set-key [M-f6] 'cider-restart)
             (local-set-key [M-S-return] 'cider-eval-buffer)
             (local-set-key (kbd "M-s-∆") 'cider-test-run-ns-tests)

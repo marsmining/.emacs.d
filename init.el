@@ -2,8 +2,9 @@
 ;; init.el - configure emacs
 ;;
 
-(setq debug-on-error nil)
-(setq exec-path-from-shell-check-startup-files nil)
+(setq debug-on-error t)
+;; (setq exec-path-from-shell-check-startup-files nil)
+;; (setq with-editor-emacsclient-path "/usr/local/Cellar/emacs/24.5/bin/emacsclient")
 
 ;; setup package manager
 ;;
@@ -32,8 +33,8 @@
          diminish flycheck js2-mode rainbow-mode
          web-mode less-css-mode markdown-mode
          clojure-mode clojure-mode-extra-font-locking
-         cider ac-cider slamhound spaceline popup-imenu
-         intero)
+         cider ac-cider spaceline popup-imenu
+         intero logview yaml-mode)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -43,6 +44,16 @@
 (when (memq window-system '(mac ns))
   (exec-path-from-shell-initialize))
 
-(set-frame-size nil 240 80)
+;; (set-frame-size nil 240 80)
+;; (set-frame-size nil 282 80) ;; imac - full-screen
+;; (set-frame-size nil 215 80) ;; imac - 3/4
+(set-frame-size nil 245 80) ;; thunder - 4/5
 (setq ns-auto-hide-menu-bar t)
 (set-frame-position nil 0 -24)
+
+;; lisp-body-indent
+(setq clojure-indent-style :always-align) ; oberyn
+;; (setq clojure-indent-style :align-arguments) ; clj-commoner
+;; (setq clojure-indent-style :always-indent) ; baelish
+
+(setq cider-save-file-on-load t)
