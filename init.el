@@ -3,8 +3,7 @@
 ;;
 
 (setq debug-on-error t)
-;; (setq exec-path-from-shell-check-startup-files nil)
-;; (setq with-editor-emacsclient-path "/usr/local/Cellar/emacs/24.5/bin/emacsclient")
+(setq exec-path-from-shell-check-startup-files nil)
 
 ;; setup package manager
 ;;
@@ -50,10 +49,3 @@
 (set-frame-size nil 245 80) ;; thunder - 4/5
 (setq ns-auto-hide-menu-bar t)
 (set-frame-position nil 0 -24)
-
-;; lisp-body-indent
-(setq clojure-indent-style :always-align) ; oberyn
-;; (setq clojure-indent-style :align-arguments) ; clj-commoner
-;; (setq clojure-indent-style :always-indent) ; baelish
-
-(setq cider-save-file-on-load t)

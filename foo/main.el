@@ -81,6 +81,8 @@
                 (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 (global-set-key (kbd "M-s-†")
                 (lambda () (interactive) (find-file "~/lang/org/foo/todo.org")))
+(global-set-key (kbd "M-s-µ")
+                (lambda () (interactive) (find-file "~/lang/org/zalando/mask.org")))
 (global-set-key (kbd "M-s-˙")
                 (lambda () (interactive) (magit-status "~/zalando/shop")))
 
@@ -428,6 +430,34 @@
 ;; haskell
 ;;
 
+(defun my-hs-run-main ()
+  "Switch to intero repl Haskell buffer and run main"
+  (interactive)
+  (intero-repl-load)
+  (insert "someFunc")
+  (comint-send-input)
+  (intero-repl-switch-back))
+
+(defun my-hs-load ()
+  (interactive)
+  (intero-repl-load)
+  (intero-repl-switch-back))
+
+;; (with-current-buffer "*haskell*"
+;;     (insert "main")
+;;     (comint-send-input))
+
+(use-package intero
+  :ensure t
+  :after haskell-mode
+  :config
+  (add-hook 'haskell-mode-hook 'intero-mode)
+  :bind (:map intero-mode-map
+              ("<f5>" . intero-repl)
+              ("s-=" . intero-type-at)
+              ("s-\\" . my-hs-load)
+              ([s-return] . my-hs-run-main)))
+
 ;; (custom-set-variables '(haskell-tags-on-save t))
 
 ;; (eval-after-load "hhhaskell-mode"
@@ -501,6 +531,13 @@
 
 ;; clojure
 ;;
+
+;; lisp-body-indent
+(setq clojure-indent-style :always-align) ; oberyn
+;; (setq clojure-indent-style :align-arguments) ; clj-commoner
+;; (setq clojure-indent-style :always-indent) ; baelish
+
+(setq cider-save-file-on-load t)
 
 ;; (require 'clojure-mode-extra-font-locking)
 (add-hook 'clojure-mode-hook 'rainbow-delimiters-mode)
@@ -667,14 +704,6 @@
               :map scala-mode-map
               ("C-c m e" . ensime)))
 
-(use-package intero
-  :ensure t
-  :after haskell-mode
-  :config
-  (add-hook 'haskell-mode-hook 'intero-mode)
-  :bind (:map intero-mode-map
-              ("<f5>" . intero-type-at)))
-
 (autoload 'find-file-in-project "find-file-in-project" nil t)
 (autoload 'find-file-in-project-by-selected "find-file-in-project" nil t)
 (autoload 'find-directory-in-project-by-selected "find-file-in-project" nil t)
@@ -684,4 +713,7 @@
 
 (add-hook 'find-file-hook
           (lambda ()
-            (setq ffip-prune-patterns (append ffip-prune-patterns '("*/target/*" "*/.ensime_cache/*")))))
+            (setq ffip-prune-patterns (append ffip-prune-patterns
+                                              '("*/target/*"
+                                                "*/.ensime_cache/*"
+                                                "*/.stack-work/*")))))
