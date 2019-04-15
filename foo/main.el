@@ -77,14 +77,12 @@
 ;; global bindings for a few commonly opened files
 ;;
 
-(global-set-key (kbd "M-s-ç")
+(global-set-key (kbd "M-s-c")
                 (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
-(global-set-key (kbd "M-s-†")
+(global-set-key (kbd "M-s-t")
                 (lambda () (interactive) (find-file "~/lang/org/foo/todo.org")))
-(global-set-key (kbd "M-s-µ")
+(global-set-key (kbd "M-s-n") ;; µ
                 (lambda () (interactive) (find-file "~/lang/org/zalando/mask.org")))
-(global-set-key (kbd "M-s-˙")
-                (lambda () (interactive) (magit-status "~/zalando/shop")))
 
 ;; disable flyspell
 ;;
@@ -108,7 +106,9 @@
 ;;
 
 (tool-bar-mode -1)
-(set-default-font "Noto Mono 15")
+;; (set-default-font "Noto Mono 15")
+(add-to-list 'default-frame-alist
+             '(font . "Noto Mono 15"))
 ;; (set-default-font "Monaco 15")
 ;; (set-default-font "Roboto Mono" 15)
 ;; (set-default-font "Roboto Mono Light" 15)
@@ -309,6 +309,27 @@
 (global-set-key (kbd "M-s-≥") 'next-error)
 (global-set-key (kbd "M-s-≤") 'previous-error)
 
+(use-package flycheck
+  :ensure t
+  :diminish flycheck-mode
+  :config
+  (global-flycheck-mode)
+
+  (setq-default flycheck-disabled-checkers
+                (append flycheck-disabled-checkers
+                        '(javascript-jshint json-jsonlist)))
+
+  (setq flycheck-checkers '(javascript-eslint c/c++-clang))
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'javascript-eslint 'js2-mode)
+  (flycheck-add-mode 'javascript-eslint 'js-mode))
+
+(eval-after-load 'flycheck
+  (add-hook 'c++-mode-hook
+            (lambda () (setq flycheck-clang-include-path
+                             (list (expand-file-name "/Library/Frameworks/SDL.framework/Headers/")
+                                   "/usr/local/include")))))
+
 ;; javascript
 ;;
 
@@ -340,25 +361,6 @@
 (setq-default js2-show-parse-errors nil)
 (setq-default js2-strict-missing-semi-warning nil)
 ;; (setq js2-language-version 170)
-
-(use-package flycheck
-  :ensure t
-  :diminish flycheck-mode
-  :config
-  (global-flycheck-mode)
-
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers
-                        '(javascript-jshint)))
-
-  (setq flycheck-checkers '(javascript-eslint))
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
-  (flycheck-add-mode 'javascript-eslint 'js2-mode)
-  (flycheck-add-mode 'javascript-eslint 'js-mode)
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers
-                        '(json-jsonlist)))
-  )
 
 ;; standard-ml
 ;;
@@ -409,12 +411,6 @@
 
 ;; graphviz
 ;;
-
-(fset 'gv
-      [?\C-c ?c return ?\C-c ?p])
-
-(fset 'gg
-      [?\C-c ?c return ?\M-: ?( ?s ?l ?e ?e ?p ?- ?f ?o ?r ? ?1 ?) return ?\C-c ?p])
 
 (add-hook 'graphviz-dot-mode-hook
           (lambda ()
@@ -533,8 +529,8 @@
 ;;
 
 ;; lisp-body-indent
-(setq clojure-indent-style :always-align) ; oberyn
-;; (setq clojure-indent-style :align-arguments) ; clj-commoner
+;; (setq clojure-indent-style :always-align) ; oberyn
+(setq clojure-indent-style :align-arguments) ; clj-commoner
 ;; (setq clojure-indent-style :always-indent) ; baelish
 
 (setq cider-save-file-on-load t)
@@ -551,8 +547,9 @@
 
 (defun my-find-nrepl ()
   (interactive)
-  (let ((messages-buffer-name (buffer-name (cider-current-messages-buffer))))
-    (replace-regexp-in-string "messages" "server" messages-buffer-name)))
+  (let* ((messages-buffer-name (buffer-name (nrepl-messages-buffer (cider-current-repl))))
+         (one (replace-regexp-in-string "messages" "server" messages-buffer-name)))
+    (replace-regexp-in-string ":[0-9]+.*$" "*" one)))
 
 (defun my-switch-to-nrepl ()
   (interactive)
@@ -576,6 +573,8 @@
 ;; buffer stuff end
 ;;
 
+(add-hook 'clojure-mode-hook #'cider-mode)
+
 (defun my-clojure-debug ()
   (interactive)
   (cider-debug-defun-at-point))
@@ -595,13 +594,13 @@
             (local-set-key (kbd "s-=") 'ac-cider-popup-doc)
             (local-set-key (kbd "s-.") 'cider-eval-defun-at-point)
             (local-set-key (kbd "s-/") 'cider-eval-last-sexp)
-            (local-set-key (kbd "M-s-÷") 'cider-pprint-eval-last-sexp)
+            (local-set-key (kbd "M-s-/") 'cider-pprint-eval-last-sexp)
             (local-set-key [f5] 'my-switch-to-repl)
             (local-set-key [M-f5] 'my-switch-to-nrepl)
             (local-set-key (kbd "M-s-<f6>") 'my-clj-logv)
             (local-set-key [M-f6] 'cider-restart)
             (local-set-key [M-S-return] 'cider-eval-buffer)
-            (local-set-key (kbd "M-s-∆") 'cider-test-run-ns-tests)
+            (local-set-key (kbd "M-s-j") 'cider-test-run-ns-tests)
             ;; (local-set-key (kbd "M-s-l") 'run-tests-for-file)
             ;; (local-set-key (kbd "M-s-k") 'clojure-jump-between-tests-and-code)
             (local-set-key [s-return] 'cider-repl-set-ns)

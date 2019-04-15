@@ -4,6 +4,7 @@
 
 (setq debug-on-error t)
 (setq exec-path-from-shell-check-startup-files nil)
+(setq ensime-startup-notification nil)
 
 ;; setup package manager
 ;;
@@ -33,7 +34,7 @@
          web-mode less-css-mode markdown-mode
          clojure-mode clojure-mode-extra-font-locking
          cider ac-cider spaceline popup-imenu
-         intero logview yaml-mode)
+         intero logview yaml-mode ox-twbs)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-packages)
@@ -45,7 +46,17 @@
 
 ;; (set-frame-size nil 240 80)
 ;; (set-frame-size nil 282 80) ;; imac - full-screen
-;; (set-frame-size nil 215 80) ;; imac - 3/4
-(set-frame-size nil 245 80) ;; thunder - 4/5
+(set-frame-size nil 215 80) ;; imac - 3/4
+;; (set-frame-size nil 170 60) ;; middle
+;; (set-frame-size nil 245 80) ;; thunder - 4/5
 (setq ns-auto-hide-menu-bar t)
-(set-frame-position nil 0 -24)
+;; (set-frame-position nil 0 0)
+;; (set-frame-parameter nil 'fullscreen 'fullboth)
+(setq datetime-timezone "GMT+1")
+;; (current-time-zone)
+(save-place-mode 1)
+(setq default-tab-width 4)
+
+(add-hook 'window-setup-hook
+          (lambda() (set-frame-position nil 0 -2)))
+
